@@ -51,7 +51,7 @@ Loader.loader.read('config.csv')
 @app.get('/', response_class=HTMLResponse)
 async def show_image(
         request: Request,
-        categories: Optional[List[str]] = Query(None),
+        categories: Optional[List[str]] = Query(None, max_length=10),
         reader: ImageHandler = Depends(lambda: Handler.handler),
 
 ):
