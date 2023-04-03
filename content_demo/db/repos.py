@@ -4,10 +4,10 @@ from dotenv import dotenv_values
 from sqlalchemy import and_, create_engine
 from sqlalchemy.orm import registry, relationship, sessionmaker
 from sqlalchemy.sql import func
+
 from db import table
 from models import interface
 from models.entity import Category, Image, ImageCategoryRelation
-
 
 config = dotenv_values('.env')
 

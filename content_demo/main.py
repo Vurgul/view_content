@@ -1,21 +1,20 @@
 import logging
-from typing import List, Optional
 import os
+from typing import List, Optional
+
 import uvicorn
 from dotenv import dotenv_values
-from fastapi import Depends, Query
+from fastapi import Depends, FastAPI, Query, Request
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 from application.handler import ImageHandler
 from db.repos import CategoryRepo, ImageCategoryRelationRepo, ImageRepo
 from storage.file_loader import FileLoader
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import FileResponse
-
-
 TITLE = 'ContentAPI'
+DIRECTORY = 'templates'
+FILE_NAME = 'config.csv'
 
 config = dotenv_values('.env')
 
@@ -25,7 +24,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.ERROR)
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=DIRECTORY)
 
 
 class Loader:
@@ -45,7 +44,7 @@ class Handler:
     )
 
 
-Loader.loader.read('config.csv')
+Loader.loader.read(FILE_NAME)
 
 
 @app.get('/', response_class=HTMLResponse)
