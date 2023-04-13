@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from typing import List, Optional
@@ -44,17 +45,14 @@ class Handler:
     )
 
 
-Loader.loader.read(FILE_NAME)
-
-
 @app.get('/', response_class=HTMLResponse)
 async def show_image(
         request: Request,
         categories: Optional[List[str]] = Query(None, max_length=10),
-        reader: ImageHandler = Depends(lambda: Handler.handler),
+        handler: ImageHandler = Depends(lambda: Handler.handler),
 
 ):
-    url = reader.get_by_categories(categories)
+    url = await handler.get_by_categories(categories)
 
     return templates.TemplateResponse(
         "static.html",
@@ -71,7 +69,8 @@ async def get_image(image_name: str):
     return FileResponse(filename)
 
 
-def main():
+async def main():
+    await Loader.loader.read(FILE_NAME)
     uvicorn.run(
         'main:app',
         host=config.get('APP_HOST'),
@@ -81,4 +80,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.get_event_loop().run_until_complete(main())

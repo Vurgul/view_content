@@ -19,33 +19,34 @@ class ImageHandler:
         self.category_repo = category_repo
         self.image_category_relation_repo = image_category_relation_repo
 
-    def get_by_categories(self, categories: Optional[List[str]]) -> str:
+    async def get_by_categories(self, categories: Optional[List[str]]) -> str:
         if categories:
-            image = self._get_image(categories)
+            image = await self._get_image(categories)
+            print(f'{image=}')
             if image:
-                self.image_repo.change_shows(image.id)
+                await self.image_repo.change_shows(image.id)
                 return image.url
             raise HTTPException(
                 status_code=400,
                 detail='Для заданных категорий картинки закончились'
             )
-        image = self._get_random_image()
+        image = await self._get_random_image()
         if image:
-            self.image_repo.change_shows(image.id)
+            await self.image_repo.change_shows(image.id)
             return image.url
         raise HTTPException(status_code=400, detail='Картинки закончились')
 
-    def _get_image(self, categories: List[str]) -> Image:
+    async def _get_image(self, categories: List[str]) -> Image:
         temp_relations = []
         temp_images = []
         for category in categories:
-            record = self.category_repo.get_by_name(category)
+            record = await self.category_repo.get_by_name(category)
             if record:
                 temp_relations.extend(
-                    self.image_category_relation_repo.get_by_category_id(record.id)
+                    await self.image_category_relation_repo.get_by_category_id(record.id)
                 )
         for temp_relation in temp_relations:
-            temp_image = self.image_repo.get_by_id(temp_relation.image_id)
+            temp_image = await self.image_repo.get_by_id(temp_relation.image_id)
             if temp_image.shows != 0:
                 temp_images.append(temp_image)
 
@@ -65,8 +66,8 @@ class ImageHandler:
                 self._cache_image_url = image.url
         return temp_image
 
-    def _get_random_image(self) -> Image:
-        image = self.image_repo.get_random()
+    async def _get_random_image(self) -> Image:
+        image = await self.image_repo.get_random()
         if image:
             self._cache_image_url = image.url
         return image
